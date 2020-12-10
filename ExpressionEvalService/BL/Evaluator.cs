@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace ExpressionEvalService.BL
 {
@@ -13,18 +11,17 @@ namespace ExpressionEvalService.BL
     /// </summary>
     public static class Evaluator
     {
-        private static readonly char[] operators = { '+', '-', '*', '/', '%', '^', '(', ')' };
-        private static IFormatProvider culture = CultureInfo.InvariantCulture;
+        private static readonly char[] Operators = { '+', '-', '*', '/', '%', '^', '(', ')' };
+        private static readonly IFormatProvider Culture = CultureInfo.InvariantCulture;
    
         public static bool IsOperator(char chr)
         {
-            return operators.Contains(chr);
+            return Operators.Contains(chr);
         }
 
-        public static bool IsOperator(string s)
+        private static bool IsOperator(string s)
         {
-            if (s.Length != 1) return false;
-            return IsOperator(s[0]);
+            return s.Length == 1 && IsOperator(s[0]);
         }
 
         public static bool IsNumeral(char chr)
@@ -36,18 +33,17 @@ namespace ExpressionEvalService.BL
         /// Converts expression string into queue collection type of operands and operators
         /// </summary>
         /// <param name="expression"></param>
-        /// <returns>expression string splitted into tokens</returns>
+        /// <returns>expression string split into tokens</returns>
         public static Queue<string> GetTokenQueue(string expression)
         {
             if (expression.Length == 0) return new Queue<string>();
 
             var queue = new Queue<string>();
 
-            string token = "";
+            var token = "";
 
-            for(int i=0; i<expression.Length; i++)
+            foreach (var c in expression)
             {
-                char c = expression[i];
                 if (IsOperator(c))
                 {
                     if (token.Length > 0)
@@ -68,11 +64,13 @@ namespace ExpressionEvalService.BL
             return queue;
         }
 
-        public static ExpressionTree InitializeTree()
+        private static ExpressionTree InitializeTree()
         {
-            var tree = new ExpressionTree();
+            var tree = new ExpressionTree
+            {
+                Root = new BTreeItem(0, BTreeItemType.Add, null, null, null)
+            };
             // root node is always fictional 0+expr
-            tree.Root = new BTreeItem(0, BTreeItemType.Add, null, null, null);
             tree.Root.Left = new BTreeItem(0, BTreeItemType.Leaf, null, null, tree.Root);
             // current node is root node
             tree.Current = tree.Root;
@@ -80,16 +78,15 @@ namespace ExpressionEvalService.BL
         }
 
         /// <summary>
-        /// Costruct binary from expression in the form of tokens queue
+        /// Construct binary from expression in the form of tokens queue
         /// </summary>
         /// <param name="tokens"></param>
         /// <returns></returns>
         public static ExpressionTree BuildExpressionTree(Queue<string> tokens)
         {
-            ExpressionTree tree = InitializeTree();
+            var tree = InitializeTree();
 
-            string token;
-            while(tokens.TryDequeue(out token))
+            while(tokens.TryDequeue(out var token))
             {
                 if (IsOperator(token))
                 {
@@ -98,8 +95,7 @@ namespace ExpressionEvalService.BL
                 }
                 else
                 {
-                    double value;
-                    if(!double.TryParse(token, NumberStyles.Float, culture, out value))
+                    if(!double.TryParse(token, NumberStyles.Float, Culture, out var value))
                     {
                         throw new ExpresionException("Expression error");
                     }

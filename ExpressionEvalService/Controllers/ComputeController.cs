@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
 using ExpressionEvalService.BL;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -14,7 +11,7 @@ namespace ExpressionEvalService.Controllers
     public class ComputeController : ControllerBase
     {
         private readonly ILogger<ComputeController> _logger;
-        private CultureInfo culture = CultureInfo.InvariantCulture;
+        private readonly CultureInfo _culture = CultureInfo.InvariantCulture;
 
         public ComputeController(ILogger<ComputeController> logger)
         {
@@ -24,13 +21,13 @@ namespace ExpressionEvalService.Controllers
         [HttpGet]
         public string Get(string expr)
         {
-            _logger.LogDebug($"Evaluluating ${expr}");
+            _logger.LogDebug($"Evaluating ${expr}");
             if (expr is null || expr.Length == 0) return "No expression";
             expr = expr.Replace(" ", "+");
             try
             {
                 var value = Evaluator.Evaluate(expr);
-                return value.ToString(culture);
+                return value.ToString(_culture);
             }catch(ExpresionException e)
             {
                 return e.Message;

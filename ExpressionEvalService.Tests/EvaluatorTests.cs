@@ -1,6 +1,5 @@
 using ExpressionEvalService.BL;
 using NUnit.Framework;
-using System;
 
 namespace ExpressionEvalService.Tests
 {
@@ -221,10 +220,6 @@ namespace ExpressionEvalService.Tests
                 var tree = Evaluator.BuildExpressionTree(queue);
                 tree.Evaluate();
             });
-        }
-        private void ExpressionException()
-        {
-            throw new NotImplementedException();
         }
     }
 }

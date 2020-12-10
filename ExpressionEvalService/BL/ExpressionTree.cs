@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ExpressionEvalService.BL
+﻿namespace ExpressionEvalService.BL
 {
     /// <summary>
     /// Class for keeping actual expression tree, evaluating and adding new nodes
@@ -23,15 +21,14 @@ namespace ExpressionEvalService.BL
 
         public override string ToString()
         {
-            if (Root == null) return "";
-            return Root.ToString();
+            return Root == null ? "" : Root.ToString();
         }
 
         /// <summary>
         /// Inserts new operator into the tree, if the right node of current node is empty
         /// </summary>
         /// <param name="opType"></param>
-        public void AddOperatorToRight(BTreeItemType opType)
+        private void AddOperatorToRight(BTreeItemType opType)
         {
             // only if right node is empty
             if (Current.Weight == 1)
@@ -69,9 +66,9 @@ namespace ExpressionEvalService.BL
         /// Add new operator to the tree if right node is present - we have to do substitution
         /// </summary>
         /// <param name="opType"></param>
-        public void SubstituteOperatorToRight(BTreeItemType opType)
+        private void SubstituteOperatorToRight(BTreeItemType opType)
         {
-            // when priority is higher we go down the tree - just move actual content to the left subnode and replace with new node 
+            // when priority is higher we go down the tree - just move actual content to the left sub-node and replace with new node 
             if (Current.Type <= opType)
             {
                 var inserted = new BTreeItem(0, opType, null, null, Current);
@@ -94,7 +91,7 @@ namespace ExpressionEvalService.BL
                 {
                     Current = Current.Right;
                 }
-                // create new parent node and put the whole subtree into left subnode
+                // create new parent node and put the whole subtree into left sub-node
                 var inserted = new BTreeItem(0, opType, Current, null, Current.Parent);
                 // are we rotating root node?
                 if (Current.Parent is null)
@@ -113,7 +110,7 @@ namespace ExpressionEvalService.BL
         /// <summary>
         /// Closes parenthesis in current subtree
         /// </summary>
-        public void CloseParenthesis()
+        private void CloseParenthesis()
         {
             // go up the tree until we find nearest opening bracket
             while (Current.Parent != null && Current.Type != BTreeItemType.Eval)
@@ -124,12 +121,11 @@ namespace ExpressionEvalService.BL
             if (Current.Parent == null && Current.Type != BTreeItemType.Eval)
                 throw new ExpresionException("Expression error");
 
-            // change eval to evalend - this is the indication that subtree brackets are closed
-            if (Current.Parent != null && Current.Type == BTreeItemType.Eval)
-            {
-                Current.Type = BTreeItemType.EvalEnd;
-                Current = Current.Parent;
-            }
+            // change eval to eval end - this is the indication that subtree brackets are closed
+            if (Current.Parent == null || Current.Type != BTreeItemType.Eval) return;
+            
+            Current.Type = BTreeItemType.EvalEnd;
+            Current = Current.Parent;
         }
 
         internal void AddOperandValue(double value)
@@ -162,11 +158,11 @@ namespace ExpressionEvalService.BL
                 // we are not awaiting operator before operand
                 case 0: throw new ExpresionException("Expression error");
                 case 1:
-                    // right subnode is empty
+                    // right sub-node is empty
                     AddOperatorToRight(opType);
                     break;
                 case 3:
-                    // right subnode is present - make a rotation
+                    // right sub-node is present - make a rotation
                     SubstituteOperatorToRight(opType);
                     break;
                 default: throw new ExpresionException("Expression error");

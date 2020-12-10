@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace ExpressionEvalService.BL
 {
@@ -9,7 +10,7 @@ namespace ExpressionEvalService.BL
         Leaf,
         // sum of two children nodes
         Add,
-        // substraction of 2 children nodes
+        // subtraction of 2 children nodes
         Sub,
         // multiplication of 2 children nodes
         Mul,
@@ -30,10 +31,10 @@ namespace ExpressionEvalService.BL
     public class BTreeItem
     {
         public BTreeItemType Type { get; set; }
-        public double Value { get; set; }
         public BTreeItem Parent { get; set; }
         public BTreeItem Left { get; set; }
         public BTreeItem Right { get; set; }
+        private double Value { get; set; }
 
 
         public BTreeItem()
@@ -56,15 +57,13 @@ namespace ExpressionEvalService.BL
 
         // Calculates "weight" of node. If left nor right is present = 0, if left = 1, if right = 2, if both = 3
         public int Weight => (Left is null ? 0 : 1) + (Right is null ? 0 : 2);
-
-        private bool IsLeaf => Type == BTreeItemType.Leaf;
-
+        
         public override string ToString()
         {
             switch (Type)
             {
                 case BTreeItemType.Leaf:
-                    return Value.ToString();
+                    return Value.ToString(CultureInfo.InvariantCulture);
                 case BTreeItemType.Add:
                     return (Left?.ToString() ?? "") + "+" + (Right?.ToString() ?? "");
                 case BTreeItemType.Sub:
